@@ -60,7 +60,18 @@ const Navbar = () => {
           className="w-5 cursor-pointer transition-all duration-300 hover:scale-110"
           alt="Search Icon"
         />
-        
+
+        {/* View Tickets Icon */}
+        {token && (
+          <Link to="/my-tickets" title="View My Tickets">
+            <img
+              src={assets.view}
+              className="w-6 cursor-pointer transition-all duration-300 hover:scale-110"
+              alt="View Tickets Icon"
+            />
+          </Link>
+        )}
+
         <div className="relative group">
           <Link to="/login">
             <img

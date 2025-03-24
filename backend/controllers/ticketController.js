@@ -39,12 +39,13 @@ export const getUserTickets = async (req, res) => {
 export const replyTicket = async (req, res) => {
   try {
     const { ticketId, reply } = req.body;
-
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) return res.status(404).json({ success: false, message: "Ticket Not Found" });
 
-    ticket.reply = reply;
+    
+    ticket.replies.push({ message: reply });
     await ticket.save();
+
 
     res.status(200).json({ success: true, message: "Reply Sent", ticket });
   } catch (error) {

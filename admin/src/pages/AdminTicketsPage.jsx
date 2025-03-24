@@ -32,12 +32,12 @@ const AdminTicketsPage = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/api/tickets/reply",
+        "http://localhost:4000/api/tickets/reply",
         { ticketId, reply: replyData[ticketId] },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessage("Reply sent successfully");
-      fetchTickets(); // Refresh tickets
+      fetchTickets();
     } catch (error) {
       setMessage(error.response?.data?.message || "Failed to send reply");
     } finally {
@@ -51,9 +51,7 @@ const AdminTicketsPage = () => {
         <h2 className="text-3xl font-bold text-center text-blue-600">
           Admin Ticket Management
         </h2>
-        {message && (
-          <p className="text-center text-gray-700 mt-2">{message}</p>
-        )}
+        {message && <p className="text-center text-gray-700 mt-2">{message}</p>}
         <div className="mt-4">
           {tickets.length === 0 ? (
             <p className="text-center text-gray-600">No tickets available</p>
@@ -63,7 +61,9 @@ const AdminTicketsPage = () => {
                 <p className="font-semibold">{ticket.name}</p>
                 <p className="text-gray-700">{ticket.email}</p>
                 <p className="text-gray-600">{ticket.inquiry}</p>
-                <p className="text-green-600">{ticket.reply || "No reply yet"}</p>
+                <p className="text-green-600">
+                  {ticket.replies.length > 0 ? ticket.replies.map((r) => <p key={r._id}>{r.message}</p>) : "No reply yet"}
+                </p>
                 <textarea
                   className="w-full p-2 border rounded-md mt-2"
                   rows="2"

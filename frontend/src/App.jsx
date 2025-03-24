@@ -17,6 +17,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import AdminNavbar from './components/AdminNavbar'
 import TicketRaisePage from './pages/TicketRaisePage'
+import MyTickets from './pages/MyTickets'
 
 const App = () => {
   const location = useLocation()
@@ -47,6 +48,7 @@ const App = () => {
         <Route path='/contact' element={<Contact />} /> */}
         <Route path='/verify' element={<Verify />} />
         <Route path='/raise-ticket' element={<TicketRaisePage />} />
+        <Route path='/my-tickets' element={<MyTickets />} />
       </Routes>
       <Footer />
     </div>

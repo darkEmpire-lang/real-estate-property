@@ -6,9 +6,13 @@ const ticketSchema = new mongoose.Schema({
   email: { type: String, required: true },
   phone: { type: String, required: true },
   inquiry: { type: String, required: true },
-  reply: { type: String, default: "" },
-  status: { type: String, enum: ["open", "closed"], default: "open" }
-}, { timestamps: true });
+  replies: [
+    {
+      message: { type: String, required: true },
+      date: { type: Date, default: Date.now },
+    },
+  ],
+});
 
 const Ticket = mongoose.model("Ticket", ticketSchema);
 export default Ticket;
