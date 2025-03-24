@@ -52,3 +52,44 @@ export const replyTicket = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+export const deleteTicket = async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+
+    const ticket = await Ticket.findByIdAndDelete(ticketId);
+    if (!ticket) return res.status(404).json({ success: false, message: "Ticket Not Found" });
+
+    res.status(200).json({ success: true, message: "Ticket Deleted Successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateTicket = async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const { inquiry } = req.body;
+
+    const ticket = await Ticket.findById(ticketId);
+    if (!ticket) return res.status(404).json({ success: false, message: "Ticket Not Found" });
+
+    // Restrict edits if last edit was within 24 hours
+    const lastEditTime = new Date(ticket.updatedAt);
+    const now = new Date();
+    const diffHours = (now - lastEditTime) / (1000 * 60 * 60);
+
+    if (diffHours < 24) {
+      return res.status(400).json({ success: false, message: "You can only edit a ticket once every 24 hours." });
+    }
+
+    ticket.inquiry = inquiry;
+    ticket.updatedAt = now;
+    await ticket.save();
+
+    res.status(200).json({ success: true, message: "Ticket Updated Successfully", ticket });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
