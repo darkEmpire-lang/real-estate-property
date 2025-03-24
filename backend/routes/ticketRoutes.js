@@ -7,7 +7,7 @@ const router = express.Router();
 router.post("/create", authUser, createTicket);
 router.get("/all", getAllTickets); // Protect route
 router.get("/user", authUser, getUserTickets);
-router.post("/reply", replyTicket); // Protect reply route
+router.post("/reply", replyTicket); 
 router.delete("/delete/:ticketId", authUser, deleteTicket);
 router.put("/update/:ticketId", authUser, updateTicket);
 

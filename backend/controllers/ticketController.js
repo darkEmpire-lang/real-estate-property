@@ -54,6 +54,9 @@ export const replyTicket = async (req, res) => {
 };
 
 
+// Backend: Ticket controller
+
+// Delete Ticket
 export const deleteTicket = async (req, res) => {
   try {
     const { ticketId } = req.params;
@@ -67,10 +70,11 @@ export const deleteTicket = async (req, res) => {
   }
 };
 
+// Update Ticket
 export const updateTicket = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const { inquiry } = req.body;
+    const { inquiry } = req.body;  // Assuming 'inquiry' is the field you want to update.
 
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) return res.status(404).json({ success: false, message: "Ticket Not Found" });
@@ -84,7 +88,7 @@ export const updateTicket = async (req, res) => {
       return res.status(400).json({ success: false, message: "You can only edit a ticket once every 24 hours." });
     }
 
-    ticket.inquiry = inquiry;
+    ticket.inquiry = inquiry;  // Update the inquiry field
     ticket.updatedAt = now;
     await ticket.save();
 

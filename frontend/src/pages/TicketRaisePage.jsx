@@ -41,7 +41,7 @@ const TicketRaisePage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-blue-600">
+        <h2 className="text-2xl font-bold text-center text-black">
           Raise a Support Ticket
         </h2>
         {message && (
@@ -86,7 +86,7 @@ const TicketRaisePage = () => {
           />
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-black text-white py-2 rounded-md hover:bg-blue-700 transition"
             disabled={loading}
           >
             {loading ? "Submitting..." : "Submit Ticket"}

@@ -23,7 +23,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between py-5 font-medium relative">
+    <div className="flex items-center justify-between py-5 font-extrabold relative">
       <Link to="/">
         <img
           src={assets.real}
@@ -65,7 +65,7 @@ const Navbar = () => {
         {token && (
           <Link to="/my-tickets" title="View My Tickets">
             <img
-              src={assets.view}
+              src={assets.tic}
               className="w-6 cursor-pointer transition-all duration-300 hover:scale-110"
               alt="View Tickets Icon"
             />
