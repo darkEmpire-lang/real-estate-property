@@ -11,7 +11,7 @@ const CartTotal = () => {
 
         <div className='text-2xl'>
 
-        <Title text1="CART " text2="TOTALS" />
+        <Title text1="Booking " text2="TOTALS" />
         </div>
 
         <div className='flex flex-col gap-2 mt-2 text-sm'>

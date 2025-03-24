@@ -9,6 +9,8 @@ const MyTickets = () => {
   const [loading, setLoading] = useState(true);
   const [editTicketId, setEditTicketId] = useState(null);
   const [editedMessage, setEditedMessage] = useState("");
+  const [resolvedCount, setResolvedCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
 
   // Fetch tickets
   useEffect(() => {
@@ -23,9 +25,13 @@ const MyTickets = () => {
         });
 
         setTickets(updatedTickets);
+        setResolvedCount(updatedTickets.filter(ticket => ticket.status === "Resolved").length);
+        setPendingCount(updatedTickets.filter(ticket => ticket.status === "Pending").length);
       } catch (error) {
         console.error("Error fetching tickets:", error);
         setTickets([]);
+        setResolvedCount(0);
+        setPendingCount(0);
       } finally {
         setLoading(false);
       }
@@ -48,7 +54,10 @@ const MyTickets = () => {
       await axios.delete(`http://localhost:4000/api/tickets/delete/${ticketId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTickets(tickets.filter((ticket) => ticket._id !== ticketId));
+      const updatedTickets = tickets.filter((ticket) => ticket._id !== ticketId);
+      setTickets(updatedTickets);
+      setResolvedCount(updatedTickets.filter(ticket => ticket.status === "Resolved").length);
+      setPendingCount(updatedTickets.filter(ticket => ticket.status === "Pending").length);
     } catch (error) {
       console.error("Error deleting ticket:", error);
     }
@@ -86,6 +95,11 @@ const MyTickets = () => {
   return (
     <div className="max-w-4xl mx-auto p-5">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">My Tickets</h2>
+      <div className="flex justify-center space-x-6 mb-6">
+        <p className="text-lg font-semibold text-gray-700">Total Tickets: {tickets.length}</p>
+        <p className="text-lg font-semibold text-green-600">Resolved: {resolvedCount}</p>
+        <p className="text-lg font-semibold text-yellow-500">Pending: {pendingCount}</p>
+      </div>
       {loading ? (
         <p className="text-gray-600 text-center">Loading tickets...</p>
       ) : tickets.length === 0 ? (
