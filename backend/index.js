@@ -13,6 +13,9 @@ import bodyParser from 'body-parser'; // Use 'import' for body-parser
 import helmet from 'helmet'; // Use 'import' for helmet'
 import ticketRoutes from "./routes/ticketRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
+import propertyRoutes from "./routes/propertyRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
+
 
 // Initialize the Express app
 const app = express();
@@ -57,6 +60,8 @@ app.use('/api/delivery', deliveryRoutes);
 app.use('/api/agent', deliveryOfficerRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/feedbacks", feedbackRoutes);
+app.use("/api/properties", propertyRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

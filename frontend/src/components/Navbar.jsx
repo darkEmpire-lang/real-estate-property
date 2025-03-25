@@ -216,6 +216,16 @@ const Navbar = () => {
               </p>
 
               <p
+                onClick={() => {
+                  navigate("/add-prop");
+                  setProfileDropdown(false);
+                }}
+                className="cursor-pointer p-2 hover:bg-blue-100 rounded-md flex items-center gap-2"
+              >
+                <LifeBuoy className="w-4 h-4 text-gray-600" /> Add A Property
+              </p>
+
+              <p
                 onClick={logout}
                 className="cursor-pointer p-2 text-red-500 hover:bg-red-100 rounded-md flex items-center gap-2"
               >

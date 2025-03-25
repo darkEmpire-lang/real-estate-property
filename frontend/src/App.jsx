@@ -21,6 +21,9 @@ import MyTickets from './pages/MyTickets'
 import FeedbackPage from './pages/FeedbackPage'
 import MyFeedbacks from './pages/MyFeedbacks'
 import AllFeedbacks from './pages/AllFeedbacks'
+import AddProperty from './pages/AddProperty'
+import PropertyList from './pages/PropertyList'
+import UserPropList from './pages/UserPropList'
 // import ProfilePage from './pages/ProfilePage'
 
 const App = () => {
@@ -56,6 +59,10 @@ const App = () => {
         <Route path='/submit-feedbacks' element={<FeedbackPage />} />
         <Route path='/my-feedbacks' element={<MyFeedbacks />} />
         <Route path='/feedbacks' element={<AllFeedbacks />} />
+        <Route path='/add-prop' element={<AddProperty />} />
+        <Route path='/all-prop' element={<PropertyList />} />
+        <Route path='/user-prop' element={<UserPropList />} />
+
 
         {/* <Route path='/profile' element={<ProfilePage />} /> */}
       </Routes>
