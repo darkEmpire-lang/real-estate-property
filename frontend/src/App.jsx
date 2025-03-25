@@ -18,6 +18,9 @@ import 'react-toastify/dist/ReactToastify.css'
 import AdminNavbar from './components/AdminNavbar'
 import TicketRaisePage from './pages/TicketRaisePage'
 import MyTickets from './pages/MyTickets'
+import FeedbackPage from './pages/FeedbackPage'
+import MyFeedbacks from './pages/MyFeedbacks'
+import AllFeedbacks from './pages/AllFeedbacks'
 // import ProfilePage from './pages/ProfilePage'
 
 const App = () => {
@@ -50,6 +53,10 @@ const App = () => {
         <Route path='/verify' element={<Verify />} />
         <Route path='/raise-ticket' element={<TicketRaisePage />} />
         <Route path='/my-tickets' element={<MyTickets />} />
+        <Route path='/submit-feedbacks' element={<FeedbackPage />} />
+        <Route path='/my-feedbacks' element={<MyFeedbacks />} />
+        <Route path='/feedbacks' element={<AllFeedbacks />} />
+
         {/* <Route path='/profile' element={<ProfilePage />} /> */}
       </Routes>
       <Footer />

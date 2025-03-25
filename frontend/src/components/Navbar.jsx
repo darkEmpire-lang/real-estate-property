@@ -3,13 +3,19 @@ import { assets } from "../assets/assets";
 import { Link, NavLink } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
+import {
+  User,
+  CalendarCheck,
+  MessageSquare,
+  LifeBuoy,
+  LogOut,
+} from "lucide-react";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const [servicesDropdown, setServicesDropdown] = useState(false);
+  const [profileDropdown, setProfileDropdown] = useState(false); // Dropdown state
   const [pendingCount, setPendingCount] = useState(0);
-  const [userProfile, setUserProfile] = useState(null); // Store user profile details
-
   const {
     setShowSearch,
     getCartCount,
@@ -23,8 +29,8 @@ const Navbar = () => {
     localStorage.removeItem("token");
     setToken("");
     setcartItems({});
-    setUserProfile(null);
     navigate("/login");
+    setProfileDropdown(false); // Close dropdown on logout
   };
 
   // Fetch pending ticket count
@@ -32,11 +38,16 @@ const Navbar = () => {
     const fetchPendingTickets = async () => {
       try {
         if (!token) return;
-        const response = await axios.get("http://localhost:4000/api/tickets/user", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          "http://localhost:4000/api/tickets/user",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        const pendingTickets = response.data.tickets.filter(ticket => ticket.replies.length === 0);
+        const pendingTickets = response.data.tickets.filter(
+          (ticket) => ticket.replies.length === 0
+        );
         setPendingCount(pendingTickets.length);
       } catch (error) {
         console.error("Error fetching pending tickets:", error);
@@ -50,23 +61,16 @@ const Navbar = () => {
     return () => clearInterval(interval);
   }, [token]);
 
-  // Fetch user profile details after login/signup
+  // Close dropdown when clicking outside
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!token) return;
-      try {
-        const response = await axios.get("http://localhost:4000/api/user/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setUserProfile(response.data); // Store user data
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
+    const closeDropdown = (e) => {
+      if (!e.target.closest(".profile-dropdown")) {
+        setProfileDropdown(false);
       }
     };
-
-    fetchUserProfile();
-  }, [token]);
+    document.addEventListener("click", closeDropdown);
+    return () => document.removeEventListener("click", closeDropdown);
+  }, []);
 
   return (
     <div className="flex items-center justify-between py-5 font-extrabold relative">
@@ -79,11 +83,36 @@ const Navbar = () => {
       </Link>
 
       <ul className="hidden sm:flex gap-8 text-sm text-gray-700">
-        <NavLink to="/" className="hover:text-blue-600 transition-all duration-300">Home</NavLink>
-        <NavLink to="/collection" className="hover:text-blue-600 transition-all duration-300">Collection</NavLink>
-        <NavLink to="/about" className="hover:text-blue-600 transition-all duration-300">About</NavLink>
-        <NavLink to="/contact" className="hover:text-blue-600 transition-all duration-300">Contact</NavLink>
-        <NavLink to="/contact" className="hover:text-blue-600 transition-all duration-300">Feedbacks</NavLink>
+        <NavLink
+          to="/"
+          className="hover:text-blue-600 transition-all duration-300"
+        >
+          Home
+        </NavLink>
+        <NavLink
+          to="/collection"
+          className="hover:text-blue-600 transition-all duration-300"
+        >
+          Collection
+        </NavLink>
+        <NavLink
+          to="/about"
+          className="hover:text-blue-600 transition-all duration-300"
+        >
+          About
+        </NavLink>
+        <NavLink
+          to="/contact"
+          className="hover:text-blue-600 transition-all duration-300"
+        >
+          Contact
+        </NavLink>
+        <NavLink
+          to="/feedbacks"
+          className="hover:text-blue-600 transition-all duration-300"
+        >
+          Feedbacks
+        </NavLink>
 
         {/* Services Dropdown */}
         <div
@@ -91,10 +120,17 @@ const Navbar = () => {
           onMouseEnter={() => setServicesDropdown(true)}
           onMouseLeave={() => setServicesDropdown(false)}
         >
-          <p className="cursor-pointer hover:text-blue-600 transition-all duration-300">Services</p>
+          <p className="cursor-pointer hover:text-blue-600 transition-all duration-300">
+            Services
+          </p>
           {servicesDropdown && (
             <div className="absolute left-0 mt-1 w-40 bg-white shadow-md rounded-md text-gray-700">
-              <NavLink to="/raise-ticket" className="block px-4 py-2 hover:bg-blue-100">Raise Ticket</NavLink>
+              <NavLink
+                to="/raise-ticket"
+                className="block px-4 py-2 hover:bg-blue-100"
+              >
+                Raise Ticket
+              </NavLink>
             </div>
           )}
         </div>
@@ -124,31 +160,67 @@ const Navbar = () => {
           </Link>
         )}
 
-        {/* Profile Picture with Dropdown Menu */}
-        <div className="relative group">
-          {token && userProfile ? (
-            <img
-              src={userProfile.profilePicture || assets.profile_icon} // Show user's profile picture or default icon
-              className="w-8 h-8 rounded-full cursor-pointer transition-all duration-300 hover:scale-110"
-              alt="Profile"
-            />
-          ) : (
-            <Link to="/login">
-              <img
-                src={assets.profile_icon}
-                className="w-5 cursor-pointer transition-all duration-300 hover:scale-110"
-                alt="Profile Icon"
-              />
-            </Link>
-          )}
+        {/* Profile Dropdown */}
+        <div className="relative profile-dropdown">
+          <img
+            src={assets.profile_icon}
+            className="w-5 cursor-pointer transition-all duration-300 hover:scale-110"
+            alt="Profile Icon"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering closeDropdown on click
+              setProfileDropdown(!profileDropdown);
+            }}
+          />
 
-          {token && (
-            <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
-              <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-                <p className="cursor-pointer hover:text-black" onClick={() => navigate("/profile")}>My Profile</p>
-                <p onClick={() => navigate("/orders")} className="cursor-pointer hover:text-black">Orders</p>
-                <p onClick={logout} className="cursor-pointer hover:text-black">Logout</p>
-              </div>
+          {profileDropdown && (
+            <div className="absolute right-0 mt-3 w-44 bg-white shadow-md rounded-md p-3 text-gray-700">
+              <p
+                onClick={() => {
+                  navigate("/profile");
+                  setProfileDropdown(false);
+                }}
+                className="cursor-pointer p-2 hover:bg-blue-100 rounded-md flex items-center gap-2"
+              >
+                <User className="w-4 h-4 text-gray-600" /> My Profile
+              </p>
+
+              <p
+                onClick={() => {
+                  navigate("/orders");
+                  setProfileDropdown(false);
+                }}
+                className="cursor-pointer p-2 hover:bg-blue-100 rounded-md flex items-center gap-2"
+              >
+                <CalendarCheck className="w-4 h-4 text-gray-600" /> My Bookings
+              </p>
+
+              <p
+                onClick={() => {
+                  navigate("/submit-feedbacks");
+                  setProfileDropdown(false);
+                }}
+                className="cursor-pointer p-2 hover:bg-blue-100 rounded-md flex items-center gap-2"
+              >
+                <MessageSquare className="w-4 h-4 text-gray-600" /> Add A
+                Feedback
+              </p>
+
+              <p
+                onClick={() => {
+                  navigate("/raise-ticket");
+                  setProfileDropdown(false);
+                }}
+                className="cursor-pointer p-2 hover:bg-blue-100 rounded-md flex items-center gap-2"
+              >
+                <LifeBuoy className="w-4 h-4 text-gray-600" /> Raise A Ticket
+              </p>
+
+              <p
+                onClick={logout}
+                className="cursor-pointer p-2 text-red-500 hover:bg-red-100 rounded-md flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4 text-red-500" /> Logout
+              </p>
             </div>
           )}
         </div>

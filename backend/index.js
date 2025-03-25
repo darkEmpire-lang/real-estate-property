@@ -12,6 +12,7 @@ import deliveryRoutes from "./routes/deliveryRoutes.js";
 import bodyParser from 'body-parser'; // Use 'import' for body-parser
 import helmet from 'helmet'; // Use 'import' for helmet'
 import ticketRoutes from "./routes/ticketRoutes.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js";
 
 // Initialize the Express app
 const app = express();
@@ -55,6 +56,7 @@ app.use('/api/order', orderRouter);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/agent', deliveryOfficerRoutes);
 app.use("/api/tickets", ticketRoutes);
+app.use("/api/feedbacks", feedbackRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
