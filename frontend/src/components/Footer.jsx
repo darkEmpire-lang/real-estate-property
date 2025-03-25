@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="container mx-auto flex flex-col sm:flex-row sm:justify-between items-center sm:items-start gap-10 px-5">
         {/* Logo Section */}
         <div className="flex flex-col items-center sm:items-start">
-          <img className="w-32 mb-4" src={assets.real} alt="Company Logo" />
+          <img className="w-32 mb-4" src={assets.gewal} alt="Company Logo" />
           <p className="w-full md:w-2/3 text-center sm:text-left text-gray-600 leading-relaxed">
             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repudiandae autem voluptas modi id facilis aliquam aperiam.
           </p>
@@ -38,7 +38,7 @@ const Footer = () => {
       {/* Footer Bottom */}
       <div className="mt-10 border-t border-gray-300 pt-5">
         <p className="text-sm text-gray-600 text-center">
-          Copyright © 2025 OnlineFurniture Store All rights reserved.
+          Copyright © 2025 gewal.lk  All rights reserved.
         </p>
       </div>
     </footer>

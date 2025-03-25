@@ -9,6 +9,10 @@ import chart from './chart.jpg'
 import report from './report.jpg'
 import real from './real.png'
 import ag from './ag.png'
+import fb from './fb.jpg'
+import bm from './bm.png'
+import pm from './pm.jpg'
+import sp from './sp.webp'
 
 export const assets = {
     logo,
@@ -21,6 +25,10 @@ export const assets = {
     chart,
     report,
     real,
-    ag
+    ag,
+    fb,
+    bm,
+    pm,
+    sp
 }
 

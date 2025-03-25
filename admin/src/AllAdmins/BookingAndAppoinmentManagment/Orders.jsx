@@ -498,7 +498,7 @@ const Orders = ({ token }) => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-        ALL Bokkings
+        Orders
       </h3>
 
       {/* Search Bar & Chart Button */}
@@ -568,7 +568,7 @@ const Orders = ({ token }) => {
 
       <div className="grid gap-6">
         {filteredOrders.length === 0 ? (
-          <p className="text-center text-gray-500">No booking found.</p>
+          <p className="text-center text-gray-500">No orders found.</p>
         ) : (
           orders.map((order, index) => (
             <div
@@ -600,10 +600,10 @@ const Orders = ({ token }) => {
                   value={order.status}
                   onChange={(event) => statusHandler(event, order._id)}
                 >
-                  {["Booking placed",
-                    "Booking Pending",
-                    "Booking Confirm",
-              
+                  {["order placed",
+                    "Pending",
+                    "InTransit",
+                    "Delivered",
                   ].map((status) => (
                     <option key={status} value={status}>
                       {status}

@@ -76,7 +76,7 @@ const Navbar = () => {
     <div className="flex items-center justify-between py-5 font-extrabold relative">
       <Link to="/">
         <img
-          src={assets.real}
+          src={assets.gewal}
           className="w-full sm:w-44 md:w-48 max-w-xs mx-auto transform transition-all duration-300 hover:scale-110 object-contain"
           alt="Logo"
         />

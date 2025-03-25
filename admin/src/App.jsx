@@ -12,7 +12,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import AddDeliveryOfficer from './pages/AddDeliveryOfficer '
 import DeliveryOfficerPage from './pages/DeliveryOfficerPage'
 import DeliveryAgentLogin from './component/DeliveryAgentLogin'
-import AdminTicketsPage from './pages/AdminTicketsPage'
+// import AdminTicketsPage from '.AllAdmins/pages/AdminTicketsPage'
+import AdminDashboard from './AllAdmins/UserAndFeedbackManagment/AdminDashboard'
+import AdminTicketsPage from './AllAdmins/CustomerServiceMangament/AdminTicketsPage'
+
 
 
 export const backendUrl=import.meta.env.VITE_BACKEND_URL
@@ -60,6 +63,7 @@ const App = () => {
           <Route path='/agent' element ={<AddDeliveryOfficer token={token}/>}/>
           <Route path='/agents' element ={<DeliveryOfficerPage token={token}/>}/>
           <Route path='/adminticket' element ={<AdminTicketsPage token={token}/>}/>
+          <Route path='/all' element ={<AdminDashboard token={token}/>}/>
   
          </Routes>
   

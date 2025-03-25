@@ -93,6 +93,7 @@ import hero22 from './hero22.png'
 import herov from './herov.mp4'
 import view from './view.png'
 import tic from './tic.png'
+import gewal from './gewal.png'
 
 export const assets = {
     logo,
@@ -130,7 +131,8 @@ export const assets = {
     hero22,
     herov,
     view,
-    tic
+    tic,
+    gewal
 
 
 }
