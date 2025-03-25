@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const MyTickets = () => {
   const { token } = useContext(ShopContext);
@@ -12,7 +13,6 @@ const MyTickets = () => {
   const [resolvedCount, setResolvedCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
 
-  // Fetch tickets
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -30,8 +30,6 @@ const MyTickets = () => {
       } catch (error) {
         console.error("Error fetching tickets:", error);
         setTickets([]);
-        setResolvedCount(0);
-        setPendingCount(0);
       } finally {
         setLoading(false);
       }
@@ -48,45 +46,52 @@ const MyTickets = () => {
     return () => clearInterval(interval);
   }, [token]);
 
-  // Handle delete ticket
   const deleteTicket = async (ticketId) => {
-    try {
-      await axios.delete(`http://localhost:4000/api/tickets/delete/${ticketId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const updatedTickets = tickets.filter((ticket) => ticket._id !== ticketId);
-      setTickets(updatedTickets);
-      setResolvedCount(updatedTickets.filter(ticket => ticket.status === "Resolved").length);
-      setPendingCount(updatedTickets.filter(ticket => ticket.status === "Pending").length);
-    } catch (error) {
-      console.error("Error deleting ticket:", error);
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:4000/api/tickets/delete/${ticketId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const updatedTickets = tickets.filter((ticket) => ticket._id !== ticketId);
+          setTickets(updatedTickets);
+          setResolvedCount(updatedTickets.filter(ticket => ticket.status === "Resolved").length);
+          setPendingCount(updatedTickets.filter(ticket => ticket.status === "Pending").length);
+          Swal.fire("Deleted!", "Your ticket has been deleted.", "success");
+        } catch (error) {
+          console.error("Error deleting ticket:", error);
+        }
+      }
+    });
   };
 
-  // Handle edit ticket
   const editTicket = (ticketId, currentMessage) => {
     setEditTicketId(ticketId);
     setEditedMessage(currentMessage);
   };
 
-  // Handle update ticket
   const updateTicket = async () => {
     try {
       const response = await axios.put(
         `http://localhost:4000/api/tickets/update/${editTicketId}`,
         { inquiry: editedMessage },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       const updatedTickets = tickets.map((ticket) =>
-        ticket._id === editTicketId
-          ? { ...ticket, inquiry: response.data.ticket.inquiry }
-          : ticket
+        ticket._id === editTicketId ? { ...ticket, inquiry: response.data.ticket.inquiry } : ticket
       );
       setTickets(updatedTickets);
       setEditTicketId(null);
       setEditedMessage("");
+      Swal.fire("Updated!", "Your ticket has been updated.", "success");
     } catch (error) {
       console.error("Error updating ticket:", error);
     }
@@ -111,16 +116,8 @@ const MyTickets = () => {
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-xl font-semibold text-blue-600">{ticket.inquiry}</h3>
                 <div className="flex space-x-3 text-gray-500">
-                  <FaEdit
-                    className="cursor-pointer hover:text-blue-500"
-                    title="Edit Ticket"
-                    onClick={() => editTicket(ticket._id, ticket.inquiry)}
-                  />
-                  <FaTrash
-                    className="cursor-pointer hover:text-red-500"
-                    title="Delete Ticket"
-                    onClick={() => deleteTicket(ticket._id)}
-                  />
+                  <FaEdit className="cursor-pointer hover:text-blue-500" title="Edit Ticket" onClick={() => editTicket(ticket._id, ticket.inquiry)} />
+                  <FaTrash className="cursor-pointer hover:text-red-500" title="Delete Ticket" onClick={() => deleteTicket(ticket._id)} />
                 </div>
               </div>
               <p className="text-sm text-gray-700">
@@ -141,20 +138,10 @@ const MyTickets = () => {
                   <p className="text-gray-500 text-sm">No replies yet.</p>
                 )}
               </div>
-
               {editTicketId === ticket._id && (
                 <div className="mt-4">
-                  <textarea
-                    className="w-full p-2 border rounded-md"
-                    value={editedMessage}
-                    onChange={(e) => setEditedMessage(e.target.value)}
-                  />
-                  <button
-                    className="mt-2 bg-blue-500 text-white p-2 rounded-md"
-                    onClick={updateTicket}
-                  >
-                    Update Ticket
-                  </button>
+                  <textarea className="w-full p-2 border rounded-md" value={editedMessage} onChange={(e) => setEditedMessage(e.target.value)} />
+                  <button className="mt-2 bg-blue-500 text-white p-2 rounded-md" onClick={updateTicket}>Update Ticket</button>
                 </div>
               )}
             </div>

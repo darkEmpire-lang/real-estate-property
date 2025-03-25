@@ -43,7 +43,6 @@ export const getUserFeedbacks = async (req, res) => {
   }
 };
 
-// ✅ Update Feedback (User can update only their own feedback)
 export const updateFeedback = async (req, res) => {
   try {
     const { feedbackId } = req.params;
@@ -52,13 +51,9 @@ export const updateFeedback = async (req, res) => {
     const feedback = await Feedback.findById(feedbackId);
     if (!feedback) return res.status(404).json({ success: false, message: "Feedback Not Found" });
 
-    // Only allow the owner to update
-    if (feedback.userId.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, message: "Unauthorized" });
-    }
+    if (feedbackMsg) feedback.feedbackMsg = feedbackMsg;
+    if (rating !== undefined) feedback.rating = rating; // ✅ Only update if rating is provided
 
-    feedback.feedbackMsg = feedbackMsg || feedback.feedbackMsg;
-    feedback.rating = rating || feedback.rating;
     await feedback.save();
 
     res.status(200).json({ success: true, message: "Feedback updated successfully", feedback });
@@ -67,20 +62,16 @@ export const updateFeedback = async (req, res) => {
   }
 };
 
+
 // ✅ Delete Feedback (User or Admin)
 export const deleteFeedback = async (req, res) => {
   try {
     const { feedbackId } = req.params;
 
-    const feedback = await Feedback.findById(feedbackId);
+    const feedback = await Feedback.findByIdAndUpdate(feedbackId);
     if (!feedback) return res.status(404).json({ success: false, message: "Feedback Not Found" });
 
-    // Allow user to delete their own feedback or admin to delete any feedback
-    if (feedback.userId.toString() !== req.user.id && req.user.role !== "admin") {
-      return res.status(403).json({ success: false, message: "Unauthorized" });
-    }
 
-    await feedback.deleteOne();
     res.status(200).json({ success: true, message: "Feedback deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

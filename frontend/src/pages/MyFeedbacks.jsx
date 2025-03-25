@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { MdStar, MdStarBorder } from "react-icons/md"; // For star rating
+import { MdStar, MdStarBorder } from "react-icons/md";
+import Swal from "sweetalert2";
 
 const MyFeedbacks = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -10,7 +11,6 @@ const MyFeedbacks = () => {
   const [editedMessage, setEditedMessage] = useState("");
   const [message, setMessage] = useState("");
 
-  // Fetch feedbacks for the logged-in user
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
@@ -25,57 +25,68 @@ const MyFeedbacks = () => {
         setLoading(false);
       }
     };
-
     fetchFeedbacks();
   }, []);
 
-  // Handle delete feedback
   const deleteFeedback = async (feedbackId) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:4000/api/feedbacks/delete/${feedbackId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setFeedbacks(feedbacks.filter((feedback) => feedback._id !== feedbackId));
-    } catch (error) {
-      setMessage("Error deleting feedback");
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const token = localStorage.getItem("token");
+          await axios.delete(`http://localhost:4000/api/feedbacks/delete/${feedbackId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setFeedbacks(feedbacks.filter((feedback) => feedback._id !== feedbackId));
+          Swal.fire("Deleted!", "Your feedback has been deleted.", "success");
+        } catch (error) {
+          setMessage("Error deleting feedback");
+        }
+      }
+    });
   };
 
-  // Handle edit feedback
   const editFeedback = (feedbackId, currentMessage) => {
     setEditFeedbackId(feedbackId);
     setEditedMessage(currentMessage);
   };
 
-  // Handle update feedback
   const updateFeedback = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
         `http://localhost:4000/api/feedbacks/update/${editFeedbackId}`,
-        { feedback: editedMessage },
+        { feedbackMsg: editedMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       setFeedbacks(
         feedbacks.map((feedback) =>
-          feedback._id === editFeedbackId ? { ...feedback, feedback: response.data.feedback.feedback } : feedback
+          feedback._id === editFeedbackId
+            ? { ...feedback, feedbackMsg: response.data.feedback.feedbackMsg }
+            : feedback
         )
       );
       setEditFeedbackId(null);
       setEditedMessage("");
+      Swal.fire("Updated!", "Your feedback has been updated successfully.", "success");
     } catch (error) {
+      console.error("Error updating feedback:", error.response?.data || error.message);
       setMessage("Error updating feedback");
     }
   };
 
-  // Function to render stars based on rating
   const renderStars = (rating) => {
-    let stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(i <= rating ? <MdStar key={i} className="text-yellow-400" /> : <MdStarBorder key={i} className="text-yellow-400" />);
-    }
-    return stars;
+    return Array.from({ length: 5 }, (_, i) =>
+      i < rating ? <MdStar key={i} className="text-yellow-400" /> : <MdStarBorder key={i} className="text-yellow-400" />
+    );
   };
 
   return (
@@ -88,49 +99,22 @@ const MyFeedbacks = () => {
       ) : (
         <div className="space-y-6">
           {feedbacks.map((feedback) => (
-            <div
-              key={feedback._id}
-              className="p-6 border rounded-lg shadow-xl bg-white hover:shadow-2xl transition-all"
-            >
+            <div key={feedback._id} className="p-6 border rounded-lg shadow-xl bg-white hover:shadow-2xl transition-all">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-xl font-semibold text-blue-600">{feedback.feedbackMsg}</h3>
                 <div className="flex space-x-4 text-gray-500">
-                  <FaEdit
-                    className="cursor-pointer hover:text-blue-500"
-                    title="Edit Feedback"
-                    onClick={() => editFeedback(feedback._id, feedback.feedbackMsg)}
-                  />
-                  <FaTrash
-                    className="cursor-pointer hover:text-red-500"
-                    title="Delete Feedback"
-                    onClick={() => deleteFeedback(feedback._id)}
-                  />
+                  <FaEdit className="cursor-pointer hover:text-blue-500" title="Edit Feedback" onClick={() => editFeedback(feedback._id, feedback.feedbackMsg)} />
+                  <FaTrash className="cursor-pointer hover:text-red-500" title="Delete Feedback" onClick={() => deleteFeedback(feedback._id)} />
                 </div>
               </div>
 
-              {/* Display Rating */}
-              <div className="flex items-center mt-2">
-                {renderStars(feedback.rating)}
-              </div>
-
-              {/* Display Date */}
+              <div className="flex items-center mt-2">{renderStars(feedback.rating)}</div>
               <p className="text-gray-500 text-sm mt-1">{new Date(feedback.createdAt).toLocaleString()}</p>
 
-              {/* Edit Feedback Section */}
               {editFeedbackId === feedback._id && (
                 <div className="mt-4">
-                  <textarea
-                    className="w-full p-3 border rounded-md"
-                    value={editedMessage}
-                    onChange={(e) => setEditedMessage(e.target.value)}
-                    placeholder="Edit your feedback here..."
-                  />
-                  <button
-                    className="mt-3 bg-blue-500 text-white p-3 rounded-md"
-                    onClick={updateFeedback}
-                  >
-                    Update Feedback
-                  </button>
+                  <textarea className="w-full p-3 border rounded-md" value={editedMessage} onChange={(e) => setEditedMessage(e.target.value)} placeholder="Edit your feedback here..." />
+                  <button className="mt-3 bg-blue-500 text-white p-3 rounded-md" onClick={updateFeedback}>Update Feedback</button>
                 </div>
               )}
             </div>
