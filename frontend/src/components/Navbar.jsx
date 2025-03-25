@@ -8,6 +8,8 @@ const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const [servicesDropdown, setServicesDropdown] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [userProfile, setUserProfile] = useState(null); // Store user profile details
+
   const {
     setShowSearch,
     getCartCount,
@@ -21,6 +23,7 @@ const Navbar = () => {
     localStorage.removeItem("token");
     setToken("");
     setcartItems({});
+    setUserProfile(null);
     navigate("/login");
   };
 
@@ -45,6 +48,24 @@ const Navbar = () => {
     const interval = setInterval(fetchPendingTickets, 5000); // Refresh every 5 seconds
 
     return () => clearInterval(interval);
+  }, [token]);
+
+  // Fetch user profile details after login/signup
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!token) return;
+      try {
+        const response = await axios.get("http://localhost:4000/api/user/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUserProfile(response.data); // Store user data
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
   }, [token]);
 
   return (
@@ -103,24 +124,29 @@ const Navbar = () => {
           </Link>
         )}
 
+        {/* Profile Picture with Dropdown Menu */}
         <div className="relative group">
-          <Link to="/login">
+          {token && userProfile ? (
             <img
-              src={assets.profile_icon}
-              className="w-5 cursor-pointer transition-all duration-300 hover:scale-110"
-              alt="Profile Icon"
+              src={userProfile.profilePicture || assets.profile_icon} // Show user's profile picture or default icon
+              className="w-8 h-8 rounded-full cursor-pointer transition-all duration-300 hover:scale-110"
+              alt="Profile"
             />
-          </Link>
+          ) : (
+            <Link to="/login">
+              <img
+                src={assets.profile_icon}
+                className="w-5 cursor-pointer transition-all duration-300 hover:scale-110"
+                alt="Profile Icon"
+              />
+            </Link>
+          )}
+
           {token && (
             <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
               <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-                <p className="cursor-pointer hover:text-black">My Profile</p>
-                <p
-                  onClick={() => navigate("/orders")}
-                  className="cursor-pointer hover:text-black"
-                >
-                  Orders
-                </p>
+                <p className="cursor-pointer hover:text-black" onClick={() => navigate("/profile")}>My Profile</p>
+                <p onClick={() => navigate("/orders")} className="cursor-pointer hover:text-black">Orders</p>
                 <p onClick={logout} className="cursor-pointer hover:text-black">Logout</p>
               </div>
             </div>

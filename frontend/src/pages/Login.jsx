@@ -4,7 +4,6 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
-
 const Login = () => {
   const [currentState, setCurrentState] = useState('Login');
   const { token, setToken, backendUrl } = useContext(ShopContext);
@@ -12,8 +11,24 @@ const Login = () => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
+  const [profilePic, setProfilePic] = useState(null);
+  const [preview, setPreview] = useState(null); // For image preview
 
   const navigate = useNavigate(); // Initialize navigate
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setProfilePic(file);
+    
+    // Create a preview of the image
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const onsubmitHandler = async (event) => {
     event.preventDefault(); // Prevent default form submission
@@ -21,7 +36,18 @@ const Login = () => {
     try {
       if (currentState === 'Sign up') {
         // Registration logic
-        const response = await axios.post(`${backendUrl}/api/user/register`, { name, email, password });
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('password', password);
+        if (profilePic) {
+          formData.append('profilePic', profilePic);
+        }
+
+        const response = await axios.post(`${backendUrl}/api/user/register`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
         console.log('Sign Up Response:', response.data); // Debug log
 
         if (response.data.success) {
@@ -50,16 +76,11 @@ const Login = () => {
     }
   };
 
-
-  useEffect(()=>{
-
-    if(token){
-      navigate('/')
+  useEffect(() => {
+    if (token) {
+      navigate('/');
     }
-
-
-
-  },[token])
+  }, [token]);
 
   return (
     <form onSubmit={onsubmitHandler} className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800">
@@ -68,16 +89,32 @@ const Login = () => {
         <hr className="border-none h-[1.5px] w-8 bg-gray-800" />
       </div>
 
-      {currentState === 'Login' ? null : (
-        <input
-          onChange={(e) => setName(e.target.value)}
-          value={name}
-          className="w-full px-3 py-2 border border-gray-800"
-          type="text"
-          placeholder="Name"
-          required
-        />
+      {currentState === 'Sign up' && (
+        <>
+          {/* Image Upload & Preview */}
+          <div className="relative flex flex-col items-center">
+            <label className="w-24 h-24 flex items-center justify-center rounded-full border-2 border-gray-400 cursor-pointer overflow-hidden">
+              {preview ? (
+                <img src={preview} alt="Profile Preview" className="w-full h-full object-cover rounded-full" />
+              ) : (
+                <span className="text-gray-500 text-sm">Upload</span>
+              )}
+              <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+            </label>
+            <p className="text-sm text-gray-500 mt-2">Click to upload profile picture</p>
+          </div>
+
+          <input
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            className="w-full px-3 py-2 border border-gray-800"
+            type="text"
+            placeholder="Name"
+            required
+          />
+        </>
       )}
+      
       <input
         onChange={(e) => setEmail(e.target.value)}
         value={email}
