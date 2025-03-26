@@ -28,7 +28,7 @@ const AdminNavbar = () => {
       {/* Logo */}
       <Link to="/">
         <img
-          src={assets.logo3}
+          src={assets.gewal}
           className="w-full sm:w-44 md:w-48 max-w-xs mx-auto transform transition-all duration-300 hover:scale-110 object-contain"
           alt="Logo"
         />

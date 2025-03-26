@@ -10,6 +10,22 @@ const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 };
 
+const verifyToken = (req, res, next) => {
+  const token = req.header("Authorization")?.split(" ")[1]; // Extract token from header
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    next();
+  } catch (error) {
+    return res.status(403).json({ success: false, message: "Invalid token" });
+  }
+};
+
 // User login handler
 const loginUser = async (req, res) => {
   try {
@@ -49,29 +65,45 @@ const loginUser = async (req, res) => {
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const profilePic = req.file ? req.file.path : ""; // Cloudinary image URL
+    let profilePic = "";
 
-    // Check if user exists
+    // Check if user already exists
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      return res.json({ success: false, message: "User already exists" });
+      return res.status(400).json({ success: false, message: "User already exists" });
     }
 
     // Validate email
     if (!validator.isEmail(email)) {
-      return res.json({ success: false, message: "Invalid email" });
+      return res.status(400).json({ success: false, message: "Invalid email format" });
     }
 
     // Validate password
     if (password.length < 5) {
-      return res.json({ success: false, message: "Weak password" });
+      return res.status(400).json({ success: false, message: "Password too short (min 5 chars)" });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Upload image to Cloudinary if provided
+    if (req.file) {
+      try {
+        console.log("Uploading image to Cloudinary:", req.file.path); // Debug log
+        const uploadedResponse = await cloudinary.uploader.upload(req.file.path, {
+          folder: "user_profiles",
+        });
+        profilePic = uploadedResponse.secure_url; // Cloudinary URL
+      } catch (uploadError) {
+        console.error("Cloudinary Upload Error:", uploadError);
+        return res.json({ success: false, message: "Image upload failed" });
+      }
+    } else {
+      console.warn("No file uploaded! req.file is undefined.");
+    }
 
-    // Save user
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Save user to DB
     const newUser = new userModel({
       name,
       email,
@@ -79,20 +111,67 @@ const registerUser = async (req, res) => {
       profilePic,
     });
 
-    const savedUser = await newUser.save();
-    const token = createToken(savedUser._id);
+    await newUser.save();
+    const token = createToken(newUser._id);
 
-    res.json({
-      success: true,
-      message: "Registration successful!",
-      token,
-    });
+    res.status(201).json({ success: true, message: "Registration successful", token });
   } catch (error) {
     console.error(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const userId = req.params.id;
+    let profilePic;
+
+    // Find user
+    const user = await userModel.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    // Upload new profile pic to Cloudinary if provided
+    if (req.file) {
+      const uploadResponse = await cloudinary.uploader.upload_stream(
+        { folder: "user_profiles" },
+        (error, result) => {
+          if (error) throw error;
+          profilePic = result.secure_url;
+        }
+      ).end(req.file.buffer);
+    }
+
+    // Hash new password if provided
+    let updatedPassword = user.password;
+    if (password) {
+      updatedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // Update user data
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.password = updatedPassword;
+    user.profilePic = profilePic || user.profilePic;
+
+    await user.save();
+    res.json({ success: true, message: "User updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+const deleteUser = async (req, res) => {
+  try {
+    const user = await userModel.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    res.json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 
 
@@ -121,53 +200,15 @@ const adminlogin = async (req, res) => {
 
 };
 
-const updateUser = async (req, res) => {
+
+const getUserProfile = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    const userId = req.params.id;
-    let profilePic = req.file ? req.file.path : undefined;
+    const user = await userModel.findById(req.userId).select("-password");
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    // Find user
-    const user = await userModel.findById(userId);
-    if (!user) {
-      return res.json({ success: false, message: "User not found" });
-    }
-
-    // Hash new password if provided
-    let updatedPassword = user.password;
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      updatedPassword = await bcrypt.hash(password, salt);
-    }
-
-    // Update user data
-    user.name = name || user.name;
-    user.email = email || user.email;
-    user.password = updatedPassword;
-    user.profilePic = profilePic || user.profilePic;
-
-    await user.save();
-
-    res.json({ success: true, message: "Profile updated successfully" });
+    res.json({ success: true, user });
   } catch (error) {
-    console.error(error);
-    res.json({ success: false, message: error.message });
-  }
-};
-
-const deleteUser = async (req, res) => {
-  try {
-    const userId = req.params.id;
-
-    const user = await userModel.findByIdAndDelete(userId);
-    if (!user) {
-      return res.json({ success: false, message: "User not found" });
-    }
-
-    res.json({ success: true, message: "User deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -179,4 +220,4 @@ const deleteUser = async (req, res) => {
 
 
 
-export { loginUser, registerUser, adminlogin,updateUser,deleteUser };
+export { loginUser, registerUser, adminlogin,updateUser,deleteUser,getUserProfile,verifyToken };

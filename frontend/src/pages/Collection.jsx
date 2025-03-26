@@ -4,8 +4,6 @@ import { assets } from '../assets/assets';
 import Title from '../components/Title';
 import ProductItem from '../components/ProductItem';
 
-// Updated categories and subcategories in Collection.jsx
-
 const Collection = () => {
   const { products, search, showSearch } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(true);
@@ -13,6 +11,7 @@ const Collection = () => {
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [sortOrder, setSortOrder] = useState('relevant');
+  const [locationSearch, setLocationSearch] = useState('');
 
   // Toggle Category Filter
   const toggleCategory = (e) => {
@@ -22,7 +21,7 @@ const Collection = () => {
     );
   };
 
-  // Toggle Subcategory Filter
+  // Toggle Subcategory (Location) Filter
   const toggleSubCategory = (e) => {
     const value = e.target.value;
     setSubCategory((prev) =>
@@ -48,6 +47,13 @@ const Collection = () => {
       productsCopy = productsCopy.filter((item) => subCategory.includes(item.subCategory));
     }
 
+    // Apply location search filter
+    if (locationSearch) {
+      productsCopy = productsCopy.filter((item) =>
+        item.location?.toLowerCase().includes(locationSearch.toLowerCase())
+      );
+    }
+
     // Apply sorting
     if (sortOrder === 'low-high') {
       productsCopy.sort((a, b) => a.price - b.price);
@@ -64,11 +70,11 @@ const Collection = () => {
 
   useEffect(() => {
     applyFilter();
-  }, [category, subCategory, sortOrder, search, showSearch]);
+  }, [category, subCategory, sortOrder, search, showSearch, locationSearch]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 pt-10 border-t">
-      {/* Filter Options */}
+      {/* Filter Sidebar */}
       <div className="min-w-60">
         <p
           onClick={() => setShowFilter(!showFilter)}
@@ -82,29 +88,39 @@ const Collection = () => {
           alt="Toggle Filters"
         />
 
-        {/* Category Filter */}
-        <div
-          className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? '' : 'hidden'} sm:block`}
-        >
-          <p className="mb-3 text-sm font-medium">CATEGORY</p>
-          {['Apartment', 'House', 'Villa', 'Commercial', 'Luxury Villa', 'Modern Apartment', 'Beachfront'].map((item, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                value={item}
-                checked={category.includes(item)}
-                onChange={toggleCategory}
-              />
-              <label className="text-sm">{item}</label>
-            </div>
-          ))}
+        {/* Search by Location */}
+        <div className="border border-gray-300 p-3 mt-6">
+          <p className="mb-2 text-sm font-medium">SEARCH BY LOCATION</p>
+          <input
+            type="text"
+            placeholder="Enter location..."
+            value={locationSearch}
+            onChange={(e) => setLocationSearch(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
         </div>
 
-        {/* Subcategory Filter */}
-        <div
-          className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? '' : 'hidden'} sm:block`}
-        >
-          <p className="mb-3 text-sm font-medium">Locations</p>
+        {/* Category Filter */}
+        <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? '' : 'hidden'} sm:block`}>
+          <p className="mb-3 text-sm font-medium">CATEGORY</p>
+          {['Apartment', 'House', 'Villa', 'Commercial', 'Luxury Villa', 'Modern Apartment', 'Beachfront'].map(
+            (item, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  value={item}
+                  checked={category.includes(item)}
+                  onChange={toggleCategory}
+                />
+                <label className="text-sm">{item}</label>
+              </div>
+            )
+          )}
+        </div>
+
+        {/* Subcategory (Location) Filter */}
+        <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? '' : 'hidden'} sm:block`}>
+          <p className="mb-3 text-sm font-medium">LOCATIONS</p>
           {['Colombo', 'Kandy', 'Galle', 'Nuwara Eliya'].map((item, idx) => (
             <div key={idx} className="flex items-center gap-2">
               <input
@@ -120,11 +136,10 @@ const Collection = () => {
       </div>
 
       {/* Product Listing */}
-
       <div className="flex-1">
         <div className="flex justify-between items-center text-base sm:text-2xl mb-4">
           <Title text1="  ALL  " text2=" Properties " />
-          {/* Product Sort */}
+          {/* Sorting Dropdown */}
           <select
             className="border border-gray-300 text-sm px-3 py-1 rounded-md focus:outline-none focus:ring focus:ring-gray-200"
             value={sortOrder}
@@ -137,7 +152,7 @@ const Collection = () => {
         </div>
 
         {/* Product Grid */}
-         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {filterProducts.map((item, index) => (
             <ProductItem
               key={index}
@@ -145,14 +160,13 @@ const Collection = () => {
               id={item._id}
               price={item.price}
               image={item.image}
+              location={item.location} // Added location to ProductItem
             />
           ))}
         </div>
       </div>
-     
     </div>
   );
 };
-
 
 export default Collection;

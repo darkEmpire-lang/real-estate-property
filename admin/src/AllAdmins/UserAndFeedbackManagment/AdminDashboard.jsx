@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { MdStar, MdStarBorder, MdDelete } from "react-icons/md";
 import { FaUserCircle } from "react-icons/fa";
-import { Pie } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
 
 const AdminDashboard = () => {
@@ -46,12 +46,15 @@ const AdminDashboard = () => {
     (rate) => feedbacks.filter((feedback) => feedback.rating === rate).length
   );
 
-  const data = {
+  const barChartData = {
     labels: ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"],
     datasets: [
       {
+        label: "Feedback Ratings",
         data: ratingCounts,
         backgroundColor: ["#FF0000", "#FFA500", "#FFFF00", "#90EE90", "#008000"],
+        borderColor: "#000000",
+        borderWidth: 1,
       },
     ],
   };
@@ -67,7 +70,7 @@ const AdminDashboard = () => {
         </div>
         <div className="p-6 bg-white shadow-lg rounded-lg">
           <h3 className="text-xl font-semibold text-center">Feedback Rating Analysis</h3>
-          <Pie data={data} />
+          <Bar data={barChartData} />
         </div>
       </div>
 

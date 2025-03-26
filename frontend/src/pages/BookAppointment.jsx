@@ -180,7 +180,7 @@ const BookAppointment = () => {
 
           <button
             onClick={handlePayment}
-            className="w-full bg-black text-white py-3 rounded-md shadow-md font-semibold hover:bg-blue-700 transition duration-300 mt-6"
+            className="w-1/2 bg-black text-white py-3 rounded-md shadow-md font-semibold hover:bg-blue-700 transition duration-300 mt-6 ml-24"
           >
             Proceed to Payment
           </button>

@@ -347,7 +347,7 @@ const Orders = ({ token }) => {
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(18);
       pdf.text(
-        "TA FURNITURE STORE - ORDER RECEIPT",
+        "Geval.lk - Booking ",
         105,
         12,
         null,

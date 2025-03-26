@@ -228,7 +228,7 @@ const Orders = ({ token }) => {
             </button>
             <button
               onClick={closeModal}
-              className="bg-gray-300 text-gray-800 p-2 rounded-md"
+              className="bg-gray-300 text-gray-800 p-2 rounded-md mb-10"
             >
               Cancel
             </button>
