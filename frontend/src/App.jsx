@@ -26,6 +26,7 @@ import PropertyList from './pages/PropertyList'
 // import UserPropList from './pages/UserPropList'
 import BookAppointment from './pages/BookAppointment'
 // import ProfilePage from './pages/ProfilePage'
+import MyBookings from './pages/MyBookings'
 
 const App = () => {
   const location = useLocation()
@@ -64,6 +65,8 @@ const App = () => {
         <Route path='/all-prop' element={<PropertyList />} />
         {/* <Route path='/user-prop' element={<UserPropList />} /> */}
         <Route path='/book/:id' element={<BookAppointment />} />
+        <Route path='/book' element={<MyBookings />} />
+
 
 
         {/* <Route path='/profile' element={<ProfilePage />} /> */}

@@ -4,6 +4,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { FaEdit } from "react-icons/fa"; // Import Edit Icon
+import { jsPDF } from "jspdf"; // Import jsPDF for PDF generation
+import "jspdf-autotable"; // Import jsPDF autotable plugin for table formatting
 
 const List = ({ token }) => {
   const [list, setList] = useState([]);
@@ -18,6 +20,8 @@ const List = ({ token }) => {
     bestseller: false,
     sizes: [],
   });
+
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
   // Fetch Product List
   const fetchList = async () => {
@@ -111,11 +115,56 @@ const List = ({ token }) => {
     fetchList();
   }, []);
 
+  // Search Filter
+  const filteredList = list.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Generate PDF Report
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text("Product List Report", 14, 20);
+    
+    // Logo
+    const logo = new Image();
+    logo.src = "ag.png"; // Path to the logo image
+    logo.onload = function() {
+      doc.addImage(logo, "PNG", 14, 10, 50, 20); // Add logo image to PDF
+
+      // Table
+      const tableData = filteredList.map((item) => [
+        item.category,
+        item.subcategory,
+        `${currency}${item.price}`,
+      ]);
+
+      doc.autoTable({
+        head: [["Category", "Subcategory", "Price"]],
+        body: tableData,
+        startY: 40, // Position of table
+        styles: { fontSize: 10, cellPadding: 2, tableWidth: "auto" },
+      });
+
+      doc.save("product_report.pdf");
+    };
+  };
+
   return (
     <>
       <ToastContainer />
       <div className="p-4">
         <p className="mb-4 text-lg font-bold">All Products List</p>
+
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="Search products"
+          className="border p-2 rounded-md mb-4 w-full"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
 
         <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] items-center py-2 px-4 border bg-gray-100 text-sm font-medium">
           <b>Image</b>
@@ -126,7 +175,7 @@ const List = ({ token }) => {
         </div>
 
         <div className="flex flex-col gap-4">
-          {list.map((item) => (
+          {filteredList.map((item) => (
             <div
               key={item._id}
               className="grid grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] items-center py-2 px-4 border rounded-md"
@@ -157,6 +206,13 @@ const List = ({ token }) => {
             </div>
           ))}
         </div>
+
+        <button
+          onClick={generatePDF}
+          className="bg-green-500 text-white py-2 px-4 rounded-md mt-4"
+        >
+          Generate PDF Report
+        </button>
       </div>
 
       {/* Edit Modal */}
