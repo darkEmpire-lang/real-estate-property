@@ -208,44 +208,43 @@ export const updateProperty = async (req, res) => {
       .json({ success: false, message: "Error updating property", error: error.message });
   }
 };
+
+
 export const deleteProperty = async (req, res) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
 
-    if (!token) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized: No token provided" });
+   try {
+      const { id } = req.params;
+  
+      const property = await Property.findByIdAndDelete(id);
+      if (!property) return res.status(404).json({ success: false, message: "Ticket Not Found" });
+  
+      res.status(200).json({ success: true, message: "Ticket Deleted Successfully" });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
-
-    const { id } = req.params;
-
-    const property = await Property.findById(id);
-
-    if (!property) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Property not found" });
-    }
-
-    if (property.user.toString() !== userId) {
-      return res
-        .status(403)
-        .json({ success: false, message: "You can only delete your own properties" });
-    }
-
-    await Property.findByIdAndDelete(id);
-
-    res.json({ success: true, message: "Property deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error deleting property", error: error.message });
-  }
+ 
 };
 
+
+
+
+
+
+export const getPropertyById = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the property ID from the URL parameters
+
+    const property = await Property.findById(id); // Find the property by its ID
+
+    if (!property) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
+
+    res.json({ success: true, property });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error fetching property", error: error.message });
+  }
+};
 

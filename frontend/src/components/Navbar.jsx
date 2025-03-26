@@ -114,6 +114,13 @@ const Navbar = () => {
           Feedbacks
         </NavLink>
 
+        <NavLink
+          to="/all-prop"
+          className="hover:text-blue-600 transition-all duration-300"
+        >
+          Properties
+        </NavLink>
+
         {/* Services Dropdown */}
         <div
           className="relative"

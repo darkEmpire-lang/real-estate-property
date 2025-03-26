@@ -15,6 +15,7 @@ import ticketRoutes from "./routes/ticketRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 
 
 // Initialize the Express app
@@ -62,6 +63,7 @@ app.use("/api/tickets", ticketRoutes);
 app.use("/api/feedbacks", feedbackRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

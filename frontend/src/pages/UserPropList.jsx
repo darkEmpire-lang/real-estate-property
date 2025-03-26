@@ -59,7 +59,7 @@ const UserPropList = () => {
                 <p className="text-gray-700 mt-2 font-medium">{property.location}</p>
                 <p className="text-xl font-bold text-gray-900 mt-2">${property.price}</p>
                 <button
-                  onClick={() => window.location.href = `/book-appointment/${property._id}`}
+                  onClick={() => window.location.href = `/book/${property._id}`}
                   className="mt-4 w-full bg-black text-white py-2 rounded-md font-semibold hover:bg-gray-800 transition duration-300"
                 >
                   Book Appointment

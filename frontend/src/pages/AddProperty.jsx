@@ -26,6 +26,8 @@ const AddProperty = () => {
   // Initialize useNavigate hook
   const navigate = useNavigate();
 
+  
+
   useEffect(() => {
     // Fetch existing properties from the server
     const fetchProperties = async () => {
@@ -63,6 +65,33 @@ const AddProperty = () => {
       toast.error("Authorization token is missing.");
       return;
     }
+
+    const handleDelete = async (id) => {
+      try {
+        const response = await axios.delete(`http://localhost:4000/api/properties/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (response.data.success) {
+          toast.success("Property deleted successfully!");
+          // Re-fetch properties after successful deletion
+          const updatedProperties = properties.filter((property) => property.id !== id);
+          setProperties(updatedProperties);
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("An error occurred while deleting the property.");
+      }
+    };
+
+
+    
+
+    
 
     try {
       const formData = new FormData();
@@ -236,30 +265,46 @@ const AddProperty = () => {
 
       {/* User's Property Listings */}
       <div className="w-full lg:w-1/2 bg-white/20 backdrop-blur-lg p-8 rounded-lg shadow-lg overflow-auto">
-        <h2 className="text-white text-2xl font-semibold text-center mb-5">My Property Listings</h2>
+  <h2 className="text-white text-2xl font-semibold text-center mb-5">My Property Listings</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties.map((property, index) => (
-            <div key={index} className="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-all">
-              <img
-                src={property.images[0]}
-                alt="Property"
-                className="w-full h-32 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-semibold text-gray-800">{property.type}</h3>
-              <p className="text-gray-600">{property.description.slice(0, 50)}...</p>
-              <p className="text-gray-800 mt-2">Price: ${property.price}</p>
-              <p className="text-gray-800">Location: {property.location}</p>
-              <button
-                onClick={() => navigate(`/property/${property.id}`)}
-                className="mt-3 w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-all"
-              >
-                View Details
-              </button>
-            </div>
-          ))}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {properties.map((property, index) => (
+      <div key={index} className="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-all">
+        <img
+          src={property.images[0]}
+          alt="Property"
+          className="w-full h-32 object-cover rounded-lg mb-4"
+        />
+        <h3 className="text-xl font-semibold text-gray-800">{property.type}</h3>
+        <p className="text-gray-600">{property.description.slice(0, 50)}...</p>
+        <p className="text-gray-800 mt-2">Price: ${property.price}</p>
+        <p className="text-gray-800">Location: {property.location}</p>
+        <button
+          onClick={() => navigate(`/property/${property.id}`)}
+          className="mt-3 w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-all"
+        >
+          View Details
+        </button>
+
+        <div className="mt-3 flex justify-between items-center">
+          <button
+            onClick={() => navigate(`/edit-property/${property.id}`)}
+            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-all"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() =>handleDelete(property.id)}
+            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-all"
+          >
+            Delete
+          </button>
         </div>
       </div>
+    ))}
+  </div>
+</div>
+
     </div>
   );
 };
