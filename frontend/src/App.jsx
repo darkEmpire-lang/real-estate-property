@@ -23,7 +23,7 @@ import MyFeedbacks from './pages/MyFeedbacks'
 import AllFeedbacks from './pages/AllFeedbacks'
 import AddProperty from './pages/AddProperty'
 import PropertyList from './pages/PropertyList'
-// import UserPropList from './pages/UserPropList'
+import UserPropList from './pages/UserPropList'
 import BookAppointment from './pages/BookAppointment'
 import ProfilePage from './pages/ProfilePage'
 import MyBookings from './pages/MyBookings'
@@ -63,7 +63,7 @@ const App = () => {
         <Route path='/feedbacks' element={<AllFeedbacks />} />
         <Route path='/add-prop' element={<AddProperty />} />
         <Route path='/properties' element={<PropertyList />} />
-        {/* <Route path='/user-prop' element={<UserPropList />} /> */}
+         <Route path='/user-prop' element={<UserPropList />} /> 
         <Route path='/book/:id' element={<BookAppointment />} />
         <Route path='/book' element={<MyBookings />} />
         <Route path='/profile' element={<ProfilePage />} />
