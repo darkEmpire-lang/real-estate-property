@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
-  const currency = '$';
+  const currency = 'LKR';
   const delivery_fee = 10;
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   
