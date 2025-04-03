@@ -19,6 +19,12 @@ const PropertyList = () => {
     fetchAllProperties();
   }, []);
 
+  // Function to open Google Maps with the given location
+  const openGoogleMaps = (location) => {
+    const formattedLocation = encodeURIComponent(location);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${formattedLocation}`, "_blank");
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
@@ -43,12 +49,24 @@ const PropertyList = () => {
                 <p className="text-gray-600 mt-2">{property.description}</p>
                 <p className="text-gray-700 mt-2 font-medium">{property.location}</p>
                 <p className="text-xl font-bold text-gray-900 mt-2">${property.price}</p>
-                <button
-                  onClick={() => window.location.href = `/book/${property._id}`}
-                  className="mt-4 w-full bg-black text-white py-2 rounded-md font-semibold hover:bg-gray-800 transition duration-300"
-                >
-                  Book Appointment
-                </button>
+
+                {/* Buttons: Book Appointment & View Location */}
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => window.location.href = `/book/${property._id}`}
+                    className="w-1/2 bg-black text-white py-2 rounded-md font-semibold hover:bg-gray-800 transition duration-300"
+                  >
+                    Book Appointment
+                  </button>
+
+                  <button
+                    onClick={() => openGoogleMaps(property.location)}
+                    className="w-1/2 bg-blue-500 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition duration-300"
+                  >
+                    View Location
+                  </button>
+                </div>
+
               </div>
             </div>
           ))}
